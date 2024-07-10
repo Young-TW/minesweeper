@@ -1,11 +1,8 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include "network.h"
-
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
-#include <optional>
 #include <vector>
 
 class Menu {

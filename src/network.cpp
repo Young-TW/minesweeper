@@ -1,9 +1,10 @@
 #include "network.h"
-#include "board.h"
 
 #include <iostream>
+#include <random>
 #include <vector>
-#include <algorithm>
+
+#include "board.h"
 
 Network::~Network() { data->socket.unbind(); }
 

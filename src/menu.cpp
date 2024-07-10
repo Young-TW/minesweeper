@@ -1,9 +1,12 @@
 #include "menu.hpp"
-#include "network.h"
-#include "sfml.hpp"
 
 #include <functional>
+#include <iostream>
+#include <random>
 #include <thread>
+
+#include "network.h"
+#include "sfml.hpp"
 
 Menu::Menu() {
     window.create(sf::VideoMode(260, 320), "Minesweeper");

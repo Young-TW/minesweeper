@@ -2,7 +2,6 @@
 #define NETWORK_H
 
 #include <SFML/Network.hpp>
-#include <random>
 #include <optional>
 #include <vector>
 
@@ -35,11 +34,12 @@ struct connect_data {
     std::optional<sf::IpAddress> server_ip;
     unsigned seed;
     unsigned short port = 6969;
-    
 };
+
 class Network : public SFML {
 public:
-    Network(int width, int height, int mines, connect_data* data) : SFML(width, height, mines) {
+    Network(int width, int height, int mines, connect_data* data)
+        : SFML(width, height, mines) {
         this->data = data;
     };
     ~Network();
@@ -51,7 +51,7 @@ public:
 
 protected:
     sf::Mutex mtx;
-    connect_data *data;
+    connect_data* data;
 
     int generate_mines(unsigned seed);
     int send_data(sf::IpAddress& ip, sf::Packet& packet);

@@ -1,5 +1,5 @@
 Language: Cpp
-SortIncludes: false
+SortIncludes: true
 BasedOnStyle: Google
 AccessModifierOffset: -4
 IndentWidth: 4

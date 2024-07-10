@@ -2,10 +2,8 @@
 #define SFML_HPP
 
 #include <SFML/Graphics.hpp>
-#include <iostream>
 
 #include "board.h"
-#include "config.h"
 
 class SFML : public Board {
 public:
@@ -13,7 +11,7 @@ public:
 
     SFML(int row, int col, int mines);
     int play_single();
-    
+
 protected:
     sf::RenderWindow window;
     sf::Font font;
@@ -30,4 +28,5 @@ protected:
     int draw_time();
     int end_game();
 };
+
 #endif

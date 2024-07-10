@@ -1,8 +1,8 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include <vector>
 #include <chrono>
+#include <vector>
 
 #include "block.h"
 
