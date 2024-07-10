@@ -59,7 +59,8 @@ int Network::recv_data() {
     sf::Packet recv_packet;
     sf::IpAddress ip;
     while (window.isOpen() && status == PLAYING) {
-        if (data->socket.receive(recv_packet, ip, data->port) != sf::Socket::Done) {
+        if (data->socket.receive(recv_packet, ip, data->port) !=
+            sf::Socket::Done) {
             std::cerr << "Failed to receive packet" << std::endl;
             return MESSENGE_RECV_ERROR;
         }
@@ -83,7 +84,8 @@ int Network::recv_data(std::vector<sf::IpAddress>& clients) {
     sf::Packet recv_packet;
     sf::IpAddress ip;
     while (window.isOpen() && status == PLAYING) {
-        if (data->socket.receive(recv_packet, ip, data->port) != sf::Socket::Done) {
+        if (data->socket.receive(recv_packet, ip, data->port) !=
+            sf::Socket::Done) {
             std::cerr << "Failed to receive packet" << std::endl;
             return MESSENGE_RECV_ERROR;
         }

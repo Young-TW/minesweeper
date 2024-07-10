@@ -100,7 +100,7 @@ int Menu::mode_select(int input) {
     if (input == 3) {
         if (mode_index == 0) {
             window.close();
-        } else if (mode_index == 3){
+        } else if (mode_index == 3) {
             mode_index = 1;
         } else {
             mode_index = 0;
@@ -190,7 +190,8 @@ int Menu::client() {
         return MESSENGE_SEND_ERROR;
     }
     if (data.selector.wait(sf::seconds(10))) {
-        sf::Socket::Status status = data.socket.receive(packet, data.server_ip.value(), data.port);
+        sf::Socket::Status status =
+            data.socket.receive(packet, data.server_ip.value(), data.port);
         if (status == sf::Socket::Done) {
             std::cout << "Connected to server!\n" << std::endl;
         } else {

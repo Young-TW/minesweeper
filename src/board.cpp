@@ -42,6 +42,7 @@ int Board::generate_mines() {
             }
         }
     }
+
     return 0;
 }
 
@@ -55,7 +56,7 @@ int Board::clear() {
     this->n_revealed = 0;
     this->n_flags = 0;
     this->first_move = true;
-    
+
     return 0;
 }
 
@@ -77,7 +78,7 @@ int Board::show_all_mine() {
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
         end_time - start_time);
     std::cout << "\nEnd time: (" << duration.count() / 1000000 << "."
-                  << duration.count() % 100 << "s)\n";
+              << duration.count() % 100 << "s)\n";
     return 0;
 }
 
@@ -110,12 +111,14 @@ int Board::get_input() {
                 continue;
             }
 
-            if (blocks[y * row + x].state == block::FLAGGED || blocks[y * row + x].state == block::HIDDEN) {
+            if (blocks[y * row + x].state == block::FLAGGED ||
+                blocks[y * row + x].state == block::HIDDEN) {
                 flip_flag(blocks[y * row + x]);
             }
 
             break;
         }
+
         std::cout << "Invalid input, please try again.\n";
     }
 
@@ -203,6 +206,7 @@ int Board::reveal(block& target_block) {
             }
         }
     }
+
     if (fast && n_flagged == target_block.value) {
         for (int i = -1; i <= 1; i++) {
             if (target_block.index < this->row && i == -1) continue;
@@ -243,7 +247,6 @@ int Board::flip_flag(block& target_block) {
 
     return 0;
 }
-
 
 int Board::check_win() {
     if (this->n_revealed == row * col - n_mines) {  // win condition
