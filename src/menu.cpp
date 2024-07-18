@@ -232,7 +232,8 @@ int Menu::host() {
     connection.selector.add(connection.socket);
     std::cout << "Server ip: " << connection.server_ip.value() << std::endl;
 
-    std::cout << "Waiting for clients..." << std::endl;
+    std::cout << "Waiting for clients... (Press Enter to start the game)" << std::endl;
+    int player_count = 0;
     while (connection.selector.wait()) {
         if (connection.selector.isReady(connection.socket)) {
             sf::IpAddress client;
@@ -253,9 +254,14 @@ int Menu::host() {
             }
 
             std::cout << "Client connected: " << client << std::endl;
+            player_count++;
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        // if enter is pressed -> break;
+        if (std::cin.get() == '\n' && player_count > 0) {
+            break;
+        }
     }
 
     sf::Packet seed;
