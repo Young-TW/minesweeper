@@ -224,7 +224,6 @@ int Menu::host() {
     connect_data data;
     data.server_ip = sf::IpAddress::getLocalAddress();
     std::vector<sf::IpAddress> clients;
-    unsigned int max_clients = 0;
 
     if (data.socket.bind(data.port) != sf::Socket::Done) {
         std::cerr << "Failed to bind socket" << std::endl;
@@ -232,11 +231,6 @@ int Menu::host() {
     }
     data.selector.add(data.socket);
     std::cout << "Server ip: " << data.server_ip.value() << std::endl;
-
-    do {
-        std::cout << "Enter max clients(1 ~ 10):";
-        std::cin >> max_clients;
-    } while (max_clients < 1 || max_clients > 10);
 
     std::cout << "Waiting for clients..." << std::endl;
     while (data.selector.wait()) {
@@ -257,10 +251,11 @@ int Menu::host() {
                 clients.end()) {
                 clients.push_back(client);
             }
-            if (clients.size() == max_clients) {
-                break;
-            }
+
+            std::cout << "Client connected: " << client << std::endl;
         }
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     sf::Packet seed;
