@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-TEST_MACHINE_1=192.168.0.100
+TEST_MACHINE_1=192.168.0.240
 USER=young
 TARGET_PATH=/home/$USER/minesweeper
 
