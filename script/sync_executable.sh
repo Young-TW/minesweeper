@@ -2,6 +2,6 @@
 
 TEST_MACHINE_1=192.168.0.240
 USER=young
-TARGET_PATH=/home/$USER/minesweeper
+TARGET_PATH=/home/$USER/minesweeper/minesweeper
 
 scp build/minesweeper $USER@$TEST_MACHINE_1:$TARGET_PATH
