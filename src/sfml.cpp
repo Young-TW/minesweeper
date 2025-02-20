@@ -6,7 +6,7 @@
 
 SFML::SFML(int row, int col, int mines) : Board(row, col, mines) {
     int window_scale = 16 * blockScale;
-    window.create(sf::VideoMode(row * window_scale, col * window_scale + 60),
+    window.create(sf::VideoMode(row * window_scale, col * window_scale + title_height),
                   "Minesweeper");
     window.setFramerateLimit(60);
 
@@ -35,7 +35,7 @@ int SFML::init_block() {
     int pos = std::min(window.getSize().x / row, window.getSize().y / col);
     for (block& block : blocks) {
         block.gl_x = block.index % row * pos;
-        block.gl_y = block.index / row * pos + 60;
+        block.gl_y = block.index / row * pos + title_height ;
     }
 
     return 0;
@@ -143,7 +143,7 @@ std::pair<SFML::game_action, int> SFML::mouse_input() {
 
 int SFML::get_block() {
     sf::Vector2i pos = sf::Mouse::getPosition(window);
-    if (pos.y < 60) {
+    if (pos.y < title_height ) {
         if (pos.x > window.getSize().x / 2 - 26 &&
             pos.x < window.getSize().x / 2 + 26) {
             face.setTextureRect(sf::IntRect(27, 24, 26, 26));
@@ -155,7 +155,7 @@ int SFML::get_block() {
     }
 
     int x = pos.x / (window.getSize().x / row);
-    int y = (pos.y - 60) / (window.getSize().x / row);
+    int y = (pos.y - title_height ) / (window.getSize().x / row);
 
     return x + y * row;
 }
