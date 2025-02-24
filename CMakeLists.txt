@@ -5,7 +5,8 @@ set(CMAKE_CXX_STANDARD 23)
 
 include_directories(./include)
 
-find_package(SFML COMPONENTS graphics window system network audio REQUIRED)
+# 指定 SFML 版本
+find_package(SFML 2.6.2 REQUIRED COMPONENTS graphics window system network audio)
 
 set(LIB_LINKS sfml-graphics sfml-window sfml-system sfml-network sfml-audio)
 
