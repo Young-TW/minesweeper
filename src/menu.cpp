@@ -1,17 +1,8 @@
 #include "menu.h"
 
-#include <algorithm>
-#include <chrono>
-#include <functional>
 #include <iostream>
-#include <memory>
-#include <optional>
-#include <random>
-#include <thread>
 #include <vector>
-
-#include "network.h"
-#include "sfml.hpp"
+#include <string>
 
 Menu::Menu()
     : title(font), difficulty_text(font), menu_text(font), sprite(texture) {
@@ -43,109 +34,37 @@ Menu::Menu()
     menu_text.setFillColor(sf::Color::White);
 }
 
-int Menu::draw_button(int button_index, bool is_pressed) {
-    if (button_index != 3 &&
-        (button_index < 0 || button_index >= mode[mode_index].size())) {
-        return -1;
-    }
-
-    int j = button_index == 3 ? 8 : button_index + mode_index * 2;
-    int move = is_pressed ? 3 : 0;
-    sprite.setTextureRect(sf::IntRect({131 * is_pressed, j * 27}, {130, 26}));
-    sprite.setPosition({0, 80.0f + button_index * 60.0f});
+int Menu::draw_button(float place, std::string text) {
+    // 設定按鈕背景圖的位置
+    sprite.setPosition({0, 80 + place * 60});
     window.draw(sprite);
 
-    if (mode_index == 2 && button_index != 3) {
-        difficulty_text.setString(
-            mode[2][button_index] + "\n" +
-            std::to_string(difficulty[button_index][0]) + "x" +
-            std::to_string(difficulty[button_index][1]) + " " +
-            std::to_string(difficulty[button_index][2]) + " mines");
-        difficulty_text.setPosition(
-            {static_cast<float>(65 + move),
-             static_cast<float>(82 + move + button_index * 60)});
-        window.draw(difficulty_text);
-    } else {
-        if (button_index == 3) {
-            menu_text.setString(!mode_index ? "Exit" : "Back");
-        } else {
-            menu_text.setString(mode[mode_index][button_index]);
-        }
-        menu_text.setPosition(
-            {static_cast<float>(65 + move),
-             static_cast<float>(82 + move + button_index * 60)});
-        window.draw(menu_text);
-    }
+    // 設定按鈕文字
+    menu_text.setString(text);
+    menu_text.setPosition({65, 82 + place * 60});
+    window.draw(menu_text);
 
-    if (is_pressed) {
-        window.display();
-        while (const std::optional<sf::Event> event = window.waitEvent()) {
-            if (event->is<sf::Event::MouseButtonPressed>()) {
-                draw_button(button_index);
-                window.display();
-                mode_select(button_index);
-                return 0;
-            }
-        }
-    }
-
+    // ❌ 這裡不應該呼叫 window.display()，這應該在 draw_menu() 統一處理
     return 0;
 }
+
 
 int Menu::draw_menu() {
     window.clear(sf::Color::Black);
+
+    // 畫標題
     window.draw(title);
-    draw_button(3);
+
+    // 畫 Exit / Back 鍵（固定在最下方）
+    draw_button(3, mode_index == 3 ? "Back" : "Exit");
+
+    // 畫其他選項按鈕
     for (int i = 0; i < mode[mode_index].size(); i++) {
-        draw_button(i);
+        draw_button(i, mode[mode_index][i]);
     }
+
+    // 顯示畫面（一次就好）
     window.display();
-
-    int input = get_input();
-    if (input != -1) {
-        draw_button(input, true);
-    }
-
-    return 0;
-}
-
-int Menu::mode_select(int input) {
-    if (input == 3) {
-        if (mode_index == 0) {
-            window.close();
-        } else if (mode_index == 3) {
-            mode_index = 1;
-        } else {
-            mode_index = 0;
-        }
-        return 0;
-    }
-
-    switch (mode_index) {
-        case 0:
-            if (input == 0) {
-                mode_index = 2;
-            } else if (input == 1) {
-                mode_index = 1;
-            }
-            break;
-        case 1:
-            if (input == 0) {
-                host();
-            } else if (input == 1) {
-                client();
-            }
-            mode_index = 3;
-            break;
-        case 2:
-            if (input >= 0 && input <= 2) {
-                SFML game(difficulty[input][0], difficulty[input][1],
-                          difficulty[input][2]);
-                game.play_single();
-                mode_index = 0;
-            }
-            break;
-    }
 
     return 0;
 }
@@ -166,155 +85,51 @@ int Menu::get_input() {
     return -1;
 }
 
-int Menu::run() {
-    while (window.isOpen()) {
-        while (const std::optional<sf::Event> event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>()) {
-                window.close();
-            }
-        }
+menu_mode_t Menu::mode_select() {
+    while (true) {
         draw_menu();
+        int input = get_input();
+        if (input == -1) continue;
+
+        if (input == 3) {
+            if (mode_index == 0) {
+                return QUIT;
+            } else {
+                mode_index = 0;
+                continue;
+            }
+        }
+
+        switch (mode_index) {
+            case 0:  // 主畫面：選單人 / 多人
+                if (input == 0) {
+                    return SINGLE_PLAYER; // 單人 → 主程式接手叫 difficulty_select()
+                } else if (input == 1) {
+                    mode_index = 1; // 切換到 Host / Join 畫面
+                }
+                break;
+
+            case 1:  // 多人選單：Host / Join
+                return static_cast<menu_mode_t>(input + 1); // HOST = 1, JOIN = 2
+        }
     }
-    return 0;
 }
 
-int Menu::client() {
-    // 使用智慧指標實例化 connect_data
-    auto connection = std::make_unique<connect_data>();
-    sf::Packet packet;
-    unsigned seed;
+menu_difficulty_t Menu::difficulty_select() {
+    mode_index = 2; // 強制設為難度選單狀態
 
-    if (connection->socket.bind(connection->port) != sf::Socket::Status::Done) {
-        std::cerr << "Failed to bind socket" << std::endl;
-        return SOCKET_CREATE_FAILED;
-    }
+    while (true) {
+        draw_menu();
+        int input = get_input();
+        if (input == -1) continue;
 
-    do {
-        std::string ip;
-        std::cout << "Enter server ip: ";
-        std::cin >> ip;
-        connection->server_ip = sf::IpAddress::resolve(ip);
-    } while (!connection->server_ip.has_value());
-
-    connection->selector.add(connection->socket);
-    packet << "Minesweeper";
-    if (connection->socket.send(packet,
-                                connection->server_ip.value(),
-                                connection->port) != sf::Socket::Status::Done) {
-        std::cerr << "Failed to send packet" << std::endl;
-        return MESSENGE_SEND_ERROR;
-    }
-    if (connection->selector.wait(sf::seconds(10))) {
-        sf::Socket::Status status =
-            connection->socket.receive(packet,
-                                       connection->server_ip,
-                                       connection->port);
-        if (status == sf::Socket::Status::Done) {
-            std::cout << "Connected to server!\n" << std::endl;
-        } else {
-            std::cerr << "Failed to receive packet" << std::endl;
-            return MESSENGE_RECV_ERROR;
-        }
-    } else {
-        std::cerr << "Server not responding" << std::endl;
-        return SERVER_NOT_RESPONDING;
-    }
-
-    if (connection->socket.receive(packet,
-                                    connection->server_ip,
-                                    connection->port) != sf::Socket::Status::Done) {
-        std::cerr << "Failed to receive packet" << std::endl;
-        return MESSENGE_RECV_ERROR;
-    }
-    packet >> seed;
-
-    // 釋放智慧指標，傳 raw pointer 給 Network
-    connect_data* raw_conn = connection.release();
-    Network game(30, 16, 99, raw_conn);
-    std::thread(static_cast<int (Network::*)()>(&Network::recv_data), &game).detach();
-    game.play_multi(raw_conn->server_ip.value(), seed);
-
-    return 0;
-}
-
-int Menu::host() {
-    // 使用智慧指標管理 connect_data
-    auto connection = std::make_unique<connect_data>();
-    connection->server_ip = sf::IpAddress::getLocalAddress();
-    std::vector<std::optional<sf::IpAddress>> clients;
-
-    if (connection->socket.bind(connection->port) != sf::Socket::Status::Done) {
-        std::cerr << "Failed to bind socket" << std::endl;
-        return SOCKET_CREATE_FAILED;
-    }
-    connection->selector.add(connection->socket);
-    std::cout << "Server ip: " << connection->server_ip.value() << std::endl;
-
-    std::cout << "Waiting for clients... (Press Enter to start the game)" << std::endl;
-    int player_count = 0;
-    while (connection->selector.wait()) {
-        if (connection->selector.isReady(connection->socket)) {
-            std::optional<sf::IpAddress> client = sf::IpAddress::Any;
-            sf::Packet packet;
-            if (connection->socket.receive(packet,
-                                          client,
-                                          connection->port) !=
-                sf::Socket::Status::Done) {
-                std::cerr << "Failed to receive packet" << std::endl;
-                return MESSENGE_RECV_ERROR;
-            }
-            if (connection->socket.send(packet,
-                                       client.value(),
-                                       connection->port) !=
-                sf::Socket::Status::Done) {
-                std::cerr << "Failed to send packet" << std::endl;
-                return MESSENGE_SEND_ERROR;
-            }
-            if (std::find(clients.begin(), clients.end(), client) ==
-                clients.end()) {
-                clients.push_back(client);
-            }
-
-            std::cout << "Client connected: " << client.value() << std::endl;
-            player_count++;
+        if (input == 3) {
+            // 返回上一頁（回主選單）
+            return EASY; // 或者丟例外 / 用 std::optional 回傳表示取消
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        if (std::cin.get() == '\n' && player_count > 0) {
-            break;
+        if (input >= 0 && input <= 2) {
+            return static_cast<menu_difficulty_t>(input);
         }
     }
-
-    sf::Packet seed;
-    seed << create_seed();
-    for (auto& client : clients) {
-        if (connection->socket.send(seed,
-                                   client.value(),
-                                   connection->port) != sf::Socket::Status::Done) {
-            std::cerr << "Failed to send packet" << std::endl;
-            return MESSENGE_SEND_ERROR;
-        }
-    }
-
-    unsigned seed_value;
-    seed >> seed_value;
-
-    // 釋放 pointer
-    connect_data* raw_conn = connection.release();
-    Network game(30, 16, 99, raw_conn);
-
-    // 準備純 IP List 供 recv_data
-    std::vector<sf::IpAddress> ipClients;
-    for (auto& opt : clients) {
-        if (opt) ipClients.push_back(opt.value());
-    }
-    std::thread(static_cast<int (Network::*)(std::vector<sf::IpAddress>&)>(&Network::recv_data), &game, std::ref(ipClients)).detach();
-    game.play_multi(clients, seed_value);
-
-    return 0;
-}
-
-unsigned Menu::create_seed() {
-    std::random_device rd;
-    return rd();
 }

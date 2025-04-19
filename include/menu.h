@@ -4,6 +4,20 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Network.hpp>
 #include <vector>
+#include <string>
+
+enum menu_mode_t {
+    SINGLE_PLAYER,
+    HOST,
+    JOIN,
+    QUIT
+};
+
+enum menu_difficulty_t {
+    EASY,
+    MEDIUM,
+    HARD
+};
 
 class Menu {
 private:
@@ -23,18 +37,17 @@ private:
     int mode_index = 0;
 
     int draw_menu();
-    int draw_button(int button_index, bool is_pressed = false);
+    int draw_button(float place, std::string text);
     int mode_select(int input);
     int get_input();
-    int host();
-    int client();
-    unsigned create_seed();
 
 public:
     Menu();
     class Server;
 
-    int run();
+    std::pair<menu_mode_t, menu_difficulty_t> run();
+    menu_mode_t mode_select();
+    menu_difficulty_t difficulty_select();
 };
 
 #endif

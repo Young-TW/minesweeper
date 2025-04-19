@@ -6,7 +6,7 @@
 #include <vector>
 #include <mutex>
 
-#include "sfml.hpp"
+#include "sfml.h"
 
 enum connect_status {
     // Universal error

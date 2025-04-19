@@ -1,4 +1,4 @@
-#include "sfml.hpp"
+#include "sfml.h"
 
 #include <iostream>
 
