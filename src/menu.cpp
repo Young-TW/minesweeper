@@ -26,7 +26,7 @@ Menu::Menu() {
     title.setFillColor(sf::Color::White);
 
     sprite.setTexture(texture);
-    sprite.setScale(2, 2);
+    sprite.setScale({2.0f, 2.0f});
 
     difficulty_text.setFont(font);
     difficulty_text.setCharacterSize(16);

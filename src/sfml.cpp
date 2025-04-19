@@ -21,15 +21,15 @@ SFML::SFML(unsigned row, unsigned col, int mines) : Board(row, col, mines) {
         std::cerr << "Failed to load texture" << std::endl;
     }
     sprite.setTexture(texture);
-    sprite.setScale(blockScale, blockScale);
+    sprite.setScale({blockScale, blockScale});
 
     face.setTexture(texture);
-    face.setScale(blockScale, blockScale);
+    face.setScale({blockScale, blockScale});
     face.setPosition(window.getSize().x / 2 - 26, 4);
     face.setTextureRect(sf::IntRect(0, 24, 26, 26));
 
     number.setTexture(texture);
-    number.setScale(blockScale, blockScale);
+    number.setScale({blockScale, blockScale});
 }
 
 int SFML::init_block() {
