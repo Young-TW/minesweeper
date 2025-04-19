@@ -15,10 +15,10 @@ SFML::SFML(unsigned row, unsigned col, int mines)
     if (!window.isOpen()) {
         std::cerr << "Failed to create window" << std::endl;
     }
-    if (!font.openFromFile("../font/Cubic_11_1.100_R.ttf")) {
+    if (!font.openFromFile("./font/Cubic_11_1.100_R.ttf")) {
         std::cerr << "Failed to load font" << std::endl;
     }
-    if (!texture.loadFromFile("../image/spritesheet.png")) {
+    if (!texture.loadFromFile("./image/spritesheet.png")) {
         std::cerr << "Failed to load texture" << std::endl;
     }
     sprite.setTexture(texture);

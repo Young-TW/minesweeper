@@ -16,12 +16,12 @@
 Menu::Menu()
     : title(font), difficulty_text(font), menu_text(font), sprite(texture) {
     window.create(sf::VideoMode({260, 320}), "Minesweeper");
-    const sf::Image icon("../image/icon/menu.png");
+    const sf::Image icon("./image/icon/menu.png");
     window.setIcon({icon.getSize().x, icon.getSize().y}, icon.getPixelsPtr());
-    if (!font.openFromFile("../font/Cubic_11_1.100_R.ttf")) {
+    if (!font.openFromFile("./font/Cubic_11_1.100_R.ttf")) {
         std::cerr << "Failed to load font" << std::endl;
     }
-    if (!texture.loadFromFile("../image/menu_button.png")) {
+    if (!texture.loadFromFile("./image/menu_button.png")) {
         std::cerr << "Failed to load difficulty.png" << std::endl;
     }
 
