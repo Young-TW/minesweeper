@@ -4,7 +4,8 @@
 
 #include "config.h"
 
-SFML::SFML(unsigned row, unsigned col, int mines) : Board(row, col, mines) {
+SFML::SFML(unsigned row, unsigned col, int mines)
+    : Board(row, col, mines), sprite(texture), face(texture), number(texture) {
     unsigned int window_scale = 16 * blockScale;
     window.create(
         sf::VideoMode({row * window_scale, col * window_scale + title_height}),
