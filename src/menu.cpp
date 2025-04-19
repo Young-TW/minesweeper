@@ -142,7 +142,7 @@ int Menu::mode_select(int input) {
 
 int Menu::get_input() {
     sf::Vector2i mouse = sf::Mouse::getPosition(window);
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
         if (mouse.y >= 80 && mouse.y <= 132) {
             return 0;
         } else if (mouse.y >= 140 && mouse.y <= 192) {

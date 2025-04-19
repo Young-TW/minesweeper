@@ -122,12 +122,12 @@ std::pair<SFML::game_action, int> SFML::mouse_input() {
                 action.second = index;
                 break;
             }
-            if (event.mouseButton.button == sf::Mouse::Left) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
                 face.setTextureRect(sf::IntRect({54, 24}, {26, 26}));
                 window.draw(face);
                 reveal(blocks[index]);
                 action = {SFML::REVEAL, index};
-            } else if (event.mouseButton.button == sf::Mouse::Right) {
+            } else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
                 if (blocks[index].state == block::HIDDEN ||
                     blocks[index].state == block::FLAGGED) {
                     flip_flag(blocks[index]);
