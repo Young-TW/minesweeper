@@ -1,14 +1,19 @@
-#include "menu.hpp"
+#include "menu.h"
 
+#include <algorithm>
+#include <chrono>
 #include <functional>
 #include <iostream>
+#include <memory>
+#include <optional>
 #include <random>
 #include <thread>
+#include <vector>
 
 #include "network.h"
 #include "sfml.hpp"
 
-Menu::Menu() 
+Menu::Menu()
     : title(font), difficulty_text(font), menu_text(font), sprite(texture) {
     window.create(sf::VideoMode({260, 320}), "Minesweeper");
     const sf::Image icon("../image/icon/menu.png");
@@ -74,7 +79,7 @@ int Menu::draw_button(int button_index, bool is_pressed) {
 
     if (is_pressed) {
         window.display();
-        while (const std::optional event = window.waitEvent()) {
+        while (const std::optional<sf::Event> event = window.waitEvent()) {
             if (event->is<sf::Event::MouseButtonPressed>()) {
                 draw_button(button_index);
                 window.display();
@@ -163,7 +168,7 @@ int Menu::get_input() {
 
 int Menu::run() {
     while (window.isOpen()) {
-        while (const std::optional event = window.pollEvent()) {
+        while (const std::optional<sf::Event> event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
                 window.close();
             }
@@ -174,11 +179,12 @@ int Menu::run() {
 }
 
 int Menu::client() {
-    connect_data connection;
+    // 使用智慧指標實例化 connect_data
+    auto connection = std::make_unique<connect_data>();
     sf::Packet packet;
     unsigned seed;
 
-    if (connection.socket.bind(connection.port) != sf::Socket::Status::Done) {
+    if (connection->socket.bind(connection->port) != sf::Socket::Status::Done) {
         std::cerr << "Failed to bind socket" << std::endl;
         return SOCKET_CREATE_FAILED;
     }
@@ -187,19 +193,22 @@ int Menu::client() {
         std::string ip;
         std::cout << "Enter server ip: ";
         std::cin >> ip;
-        connection.server_ip = sf::IpAddress::resolve(ip);
-    } while (!connection.server_ip.has_value());
+        connection->server_ip = sf::IpAddress::resolve(ip);
+    } while (!connection->server_ip.has_value());
 
-    connection.selector.add(connection.socket);
+    connection->selector.add(connection->socket);
     packet << "Minesweeper";
-    if (connection.socket.send(packet, connection.server_ip.value(), connection.port) !=
-        sf::Socket::Status::Done) {
+    if (connection->socket.send(packet,
+                                connection->server_ip.value(),
+                                connection->port) != sf::Socket::Status::Done) {
         std::cerr << "Failed to send packet" << std::endl;
         return MESSENGE_SEND_ERROR;
     }
-    if (connection.selector.wait(sf::seconds(10))) {
+    if (connection->selector.wait(sf::seconds(10))) {
         sf::Socket::Status status =
-            connection.socket.receive(packet, connection.server_ip, connection.port);
+            connection->socket.receive(packet,
+                                       connection->server_ip,
+                                       connection->port);
         if (status == sf::Socket::Status::Done) {
             std::cout << "Connected to server!\n" << std::endl;
         } else {
@@ -211,44 +220,52 @@ int Menu::client() {
         return SERVER_NOT_RESPONDING;
     }
 
-    if (connection.socket.receive(packet, connection.server_ip, connection.port) !=
-        sf::Socket::Status::Done) {
+    if (connection->socket.receive(packet,
+                                    connection->server_ip,
+                                    connection->port) != sf::Socket::Status::Done) {
         std::cerr << "Failed to receive packet" << std::endl;
         return MESSENGE_RECV_ERROR;
     }
     packet >> seed;
-    Network game(30, 16, 99, &connection);
-    std::thread(static_cast<int (Network::*)()>(&Network::recv_data), &game)
-        .detach();
-    game.play_multi(connection.server_ip.value(), seed);
+
+    // 釋放智慧指標，傳 raw pointer 給 Network
+    connect_data* raw_conn = connection.release();
+    Network game(30, 16, 99, raw_conn);
+    std::thread(static_cast<int (Network::*)()>(&Network::recv_data), &game).detach();
+    game.play_multi(raw_conn->server_ip.value(), seed);
 
     return 0;
 }
 
 int Menu::host() {
-    connect_data connection;
-    connection.server_ip = sf::IpAddress::getLocalAddress();
+    // 使用智慧指標管理 connect_data
+    auto connection = std::make_unique<connect_data>();
+    connection->server_ip = sf::IpAddress::getLocalAddress();
     std::vector<std::optional<sf::IpAddress>> clients;
 
-    if (connection.socket.bind(connection.port) != sf::Socket::Status::Done) {
+    if (connection->socket.bind(connection->port) != sf::Socket::Status::Done) {
         std::cerr << "Failed to bind socket" << std::endl;
         return SOCKET_CREATE_FAILED;
     }
-    connection.selector.add(connection.socket);
-    std::cout << "Server ip: " << connection.server_ip.value() << std::endl;
+    connection->selector.add(connection->socket);
+    std::cout << "Server ip: " << connection->server_ip.value() << std::endl;
 
     std::cout << "Waiting for clients... (Press Enter to start the game)" << std::endl;
     int player_count = 0;
-    while (connection.selector.wait()) {
-        if (connection.selector.isReady(connection.socket)) {
+    while (connection->selector.wait()) {
+        if (connection->selector.isReady(connection->socket)) {
             std::optional<sf::IpAddress> client = sf::IpAddress::Any;
             sf::Packet packet;
-            if (connection.socket.receive(packet, client, connection.port) !=
+            if (connection->socket.receive(packet,
+                                          client,
+                                          connection->port) !=
                 sf::Socket::Status::Done) {
                 std::cerr << "Failed to receive packet" << std::endl;
                 return MESSENGE_RECV_ERROR;
             }
-            if (connection.socket.send(packet, client.value(), connection.port) !=
+            if (connection->socket.send(packet,
+                                       client.value(),
+                                       connection->port) !=
                 sf::Socket::Status::Done) {
                 std::cerr << "Failed to send packet" << std::endl;
                 return MESSENGE_SEND_ERROR;
@@ -263,7 +280,6 @@ int Menu::host() {
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        // if enter is pressed -> break;
         if (std::cin.get() == '\n' && player_count > 0) {
             break;
         }
@@ -272,7 +288,9 @@ int Menu::host() {
     sf::Packet seed;
     seed << create_seed();
     for (auto& client : clients) {
-        if (connection.socket.send(seed, client.value(), connection.port) != sf::Socket::Status::Done) {
+        if (connection->socket.send(seed,
+                                   client.value(),
+                                   connection->port) != sf::Socket::Status::Done) {
             std::cerr << "Failed to send packet" << std::endl;
             return MESSENGE_SEND_ERROR;
         }
@@ -280,11 +298,17 @@ int Menu::host() {
 
     unsigned seed_value;
     seed >> seed_value;
-    Network game(30, 16, 99, &connection);
-    std::thread(static_cast<int (Network::*)(std::vector<sf::IpAddress>&)>(
-                    &Network::recv_data),
-                &game, std::ref(clients))
-        .detach();
+
+    // 釋放 pointer
+    connect_data* raw_conn = connection.release();
+    Network game(30, 16, 99, raw_conn);
+
+    // 準備純 IP List 供 recv_data
+    std::vector<sf::IpAddress> ipClients;
+    for (auto& opt : clients) {
+        if (opt) ipClients.push_back(opt.value());
+    }
+    std::thread(static_cast<int (Network::*)(std::vector<sf::IpAddress>&)>(&Network::recv_data), &game, std::ref(ipClients)).detach();
     game.play_multi(clients, seed_value);
 
     return 0;

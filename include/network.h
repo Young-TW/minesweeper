@@ -5,7 +5,6 @@
 #include <optional>
 #include <vector>
 #include <mutex>
-#include <thread>
 
 #include "sfml.hpp"
 
