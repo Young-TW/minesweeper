@@ -73,13 +73,13 @@ int Menu::get_input() {
     sf::Vector2i mouse = sf::Mouse::getPosition(window);
     if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
         if (mouse.y >= 80 && mouse.y <= 132) {
-            return 0;
+            return 0; // SINGLE_PLAYER or EASY
         } else if (mouse.y >= 140 && mouse.y <= 192) {
-            return 1;
+            return 1; // HOST or MEDIUM
         } else if (mouse.y >= 200 && mouse.y <= 252) {
-            return 2;
+            return 2; // JOIN or HARD
         } else if (mouse.y >= 260 && mouse.y <= 312) {
-            return 3;
+            return 3; // QUIT
         }
     }
     return -1;
