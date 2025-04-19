@@ -13,7 +13,6 @@ private:
                                                   {"Host", "Join"},
                                                   {"Easy", "Medium", "Hard"}};
 
-    sf::Event event;
     sf::RenderWindow window;
     sf::Image icon;
     sf::Font font;

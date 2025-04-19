@@ -69,8 +69,8 @@ int Menu::draw_button(int button_index, bool is_pressed) {
 
     if (is_pressed) {
         window.display();
-        while (window.waitEvent(event)) {
-            if (event.type == sf::Event::MouseButtonReleased) {
+        while (const std::optional event = window.waitEvent()) {
+            if (event->is<sf::Event::MouseButtonPressed>()) {
                 draw_button(button_index);
                 window.display();
                 mode_select(button_index);
@@ -158,8 +158,8 @@ int Menu::get_input() {
 
 int Menu::run() {
     while (window.isOpen()) {
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
+        while (const std::optional event = window.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
                 window.close();
             }
         }

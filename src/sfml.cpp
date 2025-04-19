@@ -109,14 +109,13 @@ int SFML::draw_time() {
 }
 
 std::pair<SFML::game_action, int> SFML::mouse_input() {
-    sf::Event event;
     auto action = std::make_pair(SFML::NONE, -1);
 
-    while (window.pollEvent(event)) {
-        if (event.type == sf::Event::Closed) {
+    while (const std::optional event = window.pollEvent()) {
+        if (event->is<sf::Event::Closed>()) {
             window.close();
         }
-        if (event.type == sf::Event::MouseButtonPressed) {
+        if (event->is<sf::Event::MouseButtonPressed>()) {
             int index = get_block();
             if (index < 0 || index >= row * col) {
                 action.second = index;
@@ -135,7 +134,7 @@ std::pair<SFML::game_action, int> SFML::mouse_input() {
                 }
             }
         }
-        if (event.type == sf::Event::MouseButtonReleased) {
+        if (event->is<sf::Event::MouseButtonReleased>()) {
             face.setTextureRect(sf::IntRect({0, 24}, {26, 26}));
             window.draw(face);
         }
@@ -205,12 +204,11 @@ int SFML::end_game() {
     window.display();
 
     sf::sleep(sf::seconds(1));
-    sf::Event event;
-    while (window.waitEvent(event)) {
-        if (event.type == sf::Event::Closed) {
+    while (const std::optional event = window.waitEvent()) {
+        if (event->is<sf::Event::Closed>()) {
             window.close();
         }
-        if (event.type == sf::Event::MouseButtonPressed) {
+        if (event->is<sf::Event::MouseButtonPressed>()) {
             if (get_block() == -2) {
                 clear();
                 play_single();
