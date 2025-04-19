@@ -18,8 +18,8 @@ struct block {
 
     block_state state = HIDDEN;
     int value = EMPTY;  // 0: empty, 1-8: number of mines around, 9: mine
-    double gl_x;
-    double gl_y;
+    float gl_x;
+    float gl_y;
     int index;
 };
 
