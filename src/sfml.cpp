@@ -4,9 +4,9 @@
 
 #include "config.h"
 
-SFML::SFML(int row, int col, int mines) : Board(row, col, mines) {
-    int window_scale = 16 * blockScale;
-    window.create(sf::VideoMode(row * window_scale, col * window_scale + title_height),
+SFML::SFML(unsigned row, unsigned col, int mines) : Board(row, col, mines) {
+    unsigned int window_scale = 16 * blockScale;
+    window.create(sf::VideoMode({row * window_scale, col * window_scale + title_height}),
                   "Minesweeper");
     window.setFramerateLimit(60);
 

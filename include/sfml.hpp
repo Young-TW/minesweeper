@@ -28,7 +28,7 @@ protected:
     int draw_time();
     int end_game();
 private:
-    const int title_height = 60;
+    const unsigned int title_height = 60;
 };
 
 #endif
