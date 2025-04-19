@@ -14,7 +14,7 @@ SFML::SFML(unsigned row, unsigned col, int mines) : Board(row, col, mines) {
     if (!window.isOpen()) {
         std::cerr << "Failed to create window" << std::endl;
     }
-    if (!font.loadFromFile("../font/Cubic_11_1.100_R.ttf")) {
+    if (!font.openFromFile("../font/Cubic_11_1.100_R.ttf")) {
         std::cerr << "Failed to load font" << std::endl;
     }
     if (!texture.loadFromFile("../image/spritesheet.png")) {
