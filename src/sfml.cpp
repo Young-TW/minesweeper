@@ -27,7 +27,7 @@ SFML::SFML(unsigned row, unsigned col, int mines) : Board(row, col, mines) {
     face.setScale({blockScale, blockScale});
     face.setPosition(
         {static_cast<float>(window.getSize().x) / 2 - 26.0f, 4.0f});
-    face.setTextureRect(sf::IntRect(0, 24, 26, 26));
+    face.setTextureRect(sf::IntRect({0, 24}, {26, 26}));
 
     number.setTexture(texture);
     number.setScale({blockScale, blockScale});
@@ -35,9 +35,9 @@ SFML::SFML(unsigned row, unsigned col, int mines) : Board(row, col, mines) {
 
 int SFML::init_block() {
     int pos = std::min(window.getSize().x / row, window.getSize().y / col);
-    for (block& block : blocks) {
+    for (block &block : blocks) {
         block.gl_x = block.index % row * pos;
-        block.gl_y = block.index / row * pos + title_height ;
+        block.gl_y = block.index / row * pos + title_height;
     }
 
     return 0;
@@ -48,26 +48,26 @@ int SFML::draw_board() {
         if (blocks[i].state == block::REVEALED) {
             if (blocks[i].value >= block::MINE) {
                 if (get_block() == i && status == LOST) {
-                    sprite.setTextureRect(sf::IntRect(102, 51, 16, 16));
+                    sprite.setTextureRect(sf::IntRect({102, 51}, {16, 16}));
                 } else {
-                    sprite.setTextureRect(sf::IntRect(85, 51, 16, 16));
+                    sprite.setTextureRect(sf::IntRect({85, 51}, {16, 16}));
                 }
             } else if (blocks[i].value != block::EMPTY) {
                 int sprite_pos = (blocks[i].value - 1) * 17;
-                sprite.setTextureRect(sf::IntRect(sprite_pos, 68, 16, 16));
+                sprite.setTextureRect(sf::IntRect({sprite_pos, 68}, {16, 16}));
             } else {
-                sprite.setTextureRect(sf::IntRect(17, 51, 16, 16));
+                sprite.setTextureRect(sf::IntRect({17, 51}, {16, 16}));
             }
         } else if (blocks[i].state == block::FLAGGED) {
             if (status == LOST && blocks[i].value != block::MINE) {
-                sprite.setTextureRect(sf::IntRect(119, 51, 16, 16));
+                sprite.setTextureRect(sf::IntRect({119, 51}, {16, 16}));
             } else {
-                sprite.setTextureRect(sf::IntRect(34, 51, 16, 16));
+                sprite.setTextureRect(sf::IntRect({34, 51}, {16, 16}));
             }
         } else {
-            sprite.setTextureRect(sf::IntRect(0, 51, 16, 16));
+            sprite.setTextureRect(sf::IntRect({0, 51}, {16, 16}));
         }
-        sprite.setPosition(blocks[i].gl_x, blocks[i].gl_y);
+        sprite.setPosition({blocks[i].gl_x, blocks[i].gl_y});
         window.draw(sprite);
         window.draw(face);
     }
@@ -79,8 +79,8 @@ int SFML::draw_flag() {
     int need_flag = n_mines - n_flags;
     for (int i = 100, digit, j = 0; i; i /= 10, j++) {
         digit = (need_flag / i + 9) % 10;
-        number.setTextureRect(sf::IntRect(digit * 14, 0, 13, 23));
-        number.setPosition(4 + j * 26, 7);
+        number.setTextureRect(sf::IntRect({digit * 14, 0}, {13, 23}));
+        number.setPosition({4.0f + j * 26.0f, 7.0f});
         window.draw(number);
     }
 
@@ -99,7 +99,7 @@ int SFML::draw_time() {
 
     for (int i = 100, digit, j = 3; i; i /= 10, j--) {
         digit = ((int)elapsed_time.count() / i + 9) % 10;
-        number.setTextureRect(sf::IntRect(digit * 14, 0, 13, 23));
+        number.setTextureRect(sf::IntRect({digit * 14, 0}, {13, 23}));
         number.setPosition(
             {static_cast<float>(window.getSize().x) - 4.0f - j * 26.0f, 7.0f});
         window.draw(number);
@@ -123,7 +123,7 @@ std::pair<SFML::game_action, int> SFML::mouse_input() {
                 break;
             }
             if (event.mouseButton.button == sf::Mouse::Left) {
-                face.setTextureRect(sf::IntRect(54, 24, 26, 26));
+                face.setTextureRect(sf::IntRect({54, 24}, {26, 26}));
                 window.draw(face);
                 reveal(blocks[index]);
                 action = {SFML::REVEAL, index};
@@ -136,7 +136,7 @@ std::pair<SFML::game_action, int> SFML::mouse_input() {
             }
         }
         if (event.type == sf::Event::MouseButtonReleased) {
-            face.setTextureRect(sf::IntRect(0, 24, 26, 26));
+            face.setTextureRect(sf::IntRect({0, 24}, {26, 26}));
             window.draw(face);
         }
     }
@@ -146,10 +146,10 @@ std::pair<SFML::game_action, int> SFML::mouse_input() {
 
 int SFML::get_block() {
     sf::Vector2i pos = sf::Mouse::getPosition(window);
-    if (pos.y < title_height ) {
+    if (pos.y < title_height) {
         if (pos.x > window.getSize().x / 2 - 26 &&
             pos.x < window.getSize().x / 2 + 26) {
-            face.setTextureRect(sf::IntRect(27, 24, 26, 26));
+            face.setTextureRect(sf::IntRect({27, 24}, {26, 26}));
             window.draw(face);
 
             return -2;
@@ -158,7 +158,7 @@ int SFML::get_block() {
     }
 
     int x = pos.x / (window.getSize().x / row);
-    int y = (pos.y - title_height ) / (window.getSize().x / row);
+    int y = (pos.y - title_height) / (window.getSize().x / row);
 
     return x + y * row;
 }
@@ -186,14 +186,14 @@ int SFML::play_single() {
 
 int SFML::end_game() {
     if (status == WON) {
-        face.setTextureRect(sf::IntRect(81, 24, 26, 26));
+        face.setTextureRect(sf::IntRect({81, 24}, {26, 26}));
         for (int i = 0; i < row * col; i++) {
             if (blocks[i].value >= block::MINE) {
                 blocks[i].state = block::FLAGGED;
             }
         }
     } else {
-        face.setTextureRect(sf::IntRect(108, 24, 26, 26));
+        face.setTextureRect(sf::IntRect({108, 24}, {26, 26}));
         for (int i = 0; i < row * col; i++) {
             if (blocks[i].value >= block::MINE) {
                 blocks[i].state = block::REVEALED;
