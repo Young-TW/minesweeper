@@ -9,7 +9,7 @@ class SFML : public Board {
 public:
     enum game_action { REVEAL, FLAG, NONE };
 
-    SFML(int row, int col, int mines);
+    SFML(unsigned row, unsigned col, int mines);
     int play_single();
 
 protected:

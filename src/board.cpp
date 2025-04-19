@@ -3,7 +3,7 @@
 #include <iostream>
 #include <random>
 
-Board::Board(int row, int col, int n_mines)
+Board::Board(unsigned row, unsigned col, int n_mines)
     : row(row), col(col), n_mines(n_mines) {
     blocks.resize(row * col);
     this->col = col;

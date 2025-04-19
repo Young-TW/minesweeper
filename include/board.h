@@ -8,7 +8,7 @@
 
 class Board {
 public:
-    Board(int row, int col, int mines);
+    Board(unsigned row, unsigned col, int mines);
     ~Board();
 
     int start_game();
