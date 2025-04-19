@@ -47,7 +47,7 @@ public:
     ~Network();
 
     int play_multi(sf::IpAddress& ip, unsigned seed);
-    int play_multi(std::vector<sf::IpAddress>& clients, unsigned seed);
+    int play_multi(std::vector<std::optional<sf::IpAddress>>& clients, unsigned seed);
     int recv_data();
     int recv_data(std::vector<sf::IpAddress>& clients);
 

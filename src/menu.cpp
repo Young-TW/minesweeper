@@ -186,7 +186,7 @@ int Menu::client() {
         std::string ip;
         std::cout << "Enter server ip: ";
         std::cin >> ip;
-        connection.server_ip = sf::IpAddress(ip);
+        connection.server_ip = sf::IpAddress::resolve(ip);
     } while (!connection.server_ip.has_value());
 
     connection.selector.add(connection.socket);
@@ -198,7 +198,7 @@ int Menu::client() {
     }
     if (connection.selector.wait(sf::seconds(10))) {
         sf::Socket::Status status =
-            connection.socket.receive(packet, connection.server_ip.value(), connection.port);
+            connection.socket.receive(packet, connection.server_ip, connection.port);
         if (status == sf::Socket::Status::Done) {
             std::cout << "Connected to server!\n" << std::endl;
         } else {
@@ -210,7 +210,7 @@ int Menu::client() {
         return SERVER_NOT_RESPONDING;
     }
 
-    if (connection.socket.receive(packet, connection.server_ip.value(), connection.port) !=
+    if (connection.socket.receive(packet, connection.server_ip, connection.port) !=
         sf::Socket::Status::Done) {
         std::cerr << "Failed to receive packet" << std::endl;
         return MESSENGE_RECV_ERROR;
@@ -227,7 +227,7 @@ int Menu::client() {
 int Menu::host() {
     connect_data connection;
     connection.server_ip = sf::IpAddress::getLocalAddress();
-    std::vector<sf::IpAddress> clients;
+    std::vector<std::optional<sf::IpAddress>> clients;
 
     if (connection.socket.bind(connection.port) != sf::Socket::Status::Done) {
         std::cerr << "Failed to bind socket" << std::endl;
@@ -240,14 +240,14 @@ int Menu::host() {
     int player_count = 0;
     while (connection.selector.wait()) {
         if (connection.selector.isReady(connection.socket)) {
-            sf::IpAddress client;
+            std::optional<sf::IpAddress> client = sf::IpAddress::Any;
             sf::Packet packet;
             if (connection.socket.receive(packet, client, connection.port) !=
                 sf::Socket::Status::Done) {
                 std::cerr << "Failed to receive packet" << std::endl;
                 return MESSENGE_RECV_ERROR;
             }
-            if (connection.socket.send(packet, client, connection.port) !=
+            if (connection.socket.send(packet, client.value(), connection.port) !=
                 sf::Socket::Status::Done) {
                 std::cerr << "Failed to send packet" << std::endl;
                 return MESSENGE_SEND_ERROR;
@@ -257,7 +257,7 @@ int Menu::host() {
                 clients.push_back(client);
             }
 
-            std::cout << "Client connected: " << client << std::endl;
+            std::cout << "Client connected: " << client.value() << std::endl;
             player_count++;
         }
 
@@ -271,7 +271,7 @@ int Menu::host() {
     sf::Packet seed;
     seed << create_seed();
     for (auto& client : clients) {
-        if (connection.socket.send(seed, client, connection.port) != sf::Socket::Status::Done) {
+        if (connection.socket.send(seed, client.value(), connection.port) != sf::Socket::Status::Done) {
             std::cerr << "Failed to send packet" << std::endl;
             return MESSENGE_SEND_ERROR;
         }

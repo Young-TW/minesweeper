@@ -58,7 +58,7 @@ sf::Packet& operator>>(sf::Packet& packet, const SFML::game_action& action) {
 
 int Network::recv_data() {
     sf::Packet recv_packet;
-    sf::IpAddress ip;
+    std::optional<sf::IpAddress> ip = sf::IpAddress::Any;
     while (window.isOpen() && status == PLAYING) {
         if (data->socket.receive(recv_packet, ip, data->port) !=
             sf::Socket::Status::Done) {
@@ -83,7 +83,7 @@ int Network::recv_data() {
 
 int Network::recv_data(std::vector<sf::IpAddress>& clients) {
     sf::Packet recv_packet;
-    sf::IpAddress ip;
+    std::optional<sf::IpAddress> ip = sf::IpAddress::Any;
     while (window.isOpen() && status == PLAYING) {
         if (data->socket.receive(recv_packet, ip, data->port) !=
             sf::Socket::Status::Done) {
@@ -143,7 +143,7 @@ int Network::play_multi(sf::IpAddress& ip, unsigned seed) {
     return 0;
 }
 
-int Network::play_multi(std::vector<sf::IpAddress>& clients, unsigned seed) {
+int Network::play_multi(std::vector<std::optional<sf::IpAddress>>& clients, unsigned seed) {
     init_block();
     generate_mines(seed);
     while (window.isOpen() && status == PLAYING) {
@@ -164,7 +164,7 @@ int Network::play_multi(std::vector<sf::IpAddress>& clients, unsigned seed) {
             sf::Packet packet;
             packet << input.first << input.second;
             for (auto& ip : clients) {
-                if (send_data(ip, packet) != SUCCESS) {
+                if (send_data(ip.value(), packet) != SUCCESS) {
                     return GAME_INTERACTION_ERROR;
                 }
             }
