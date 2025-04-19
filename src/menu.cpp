@@ -22,7 +22,7 @@ Menu::Menu() {
     title.setFont(font);
     title.setString("Minesweeper!");
     title.setCharacterSize(24);
-    title.setPosition(60, 20);
+    title.setPosition({60, 20});
     title.setFillColor(sf::Color::White);
 
     sprite.setTexture(texture);

@@ -25,7 +25,8 @@ SFML::SFML(unsigned row, unsigned col, int mines) : Board(row, col, mines) {
 
     face.setTexture(texture);
     face.setScale({blockScale, blockScale});
-    face.setPosition(window.getSize().x / 2 - 26, 4);
+    face.setPosition(
+        {static_cast<float>(window.getSize().x) / 2 - 26.0f, 4.0f});
     face.setTextureRect(sf::IntRect(0, 24, 26, 26));
 
     number.setTexture(texture);
@@ -99,7 +100,8 @@ int SFML::draw_time() {
     for (int i = 100, digit, j = 3; i; i /= 10, j--) {
         digit = ((int)elapsed_time.count() / i + 9) % 10;
         number.setTextureRect(sf::IntRect(digit * 14, 0, 13, 23));
-        number.setPosition(window.getSize().x - 4 - j * 26, 7);
+        number.setPosition(
+            {static_cast<float>(window.getSize().x) - 4.0f - j * 26.0f, 7.0f});
         window.draw(number);
     }
 
