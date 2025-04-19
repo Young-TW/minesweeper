@@ -45,7 +45,7 @@ int Network::generate_mines(unsigned seed) {
 }
 
 int Network::send_data(sf::IpAddress& ip, sf::Packet& packet) {
-    if (data->socket.send(packet, ip, data->port) != sf::Socket::Done) {
+    if (data->socket.send(packet, ip, data->port) != sf::Socket::Status::Done) {
         std::cerr << "Failed to send packet" << std::endl;
         return MESSENGE_SEND_ERROR;
     }
@@ -61,7 +61,7 @@ int Network::recv_data() {
     sf::IpAddress ip;
     while (window.isOpen() && status == PLAYING) {
         if (data->socket.receive(recv_packet, ip, data->port) !=
-            sf::Socket::Done) {
+            sf::Socket::Status::Done) {
             std::cerr << "Failed to receive packet" << std::endl;
             return MESSENGE_RECV_ERROR;
         }
@@ -86,7 +86,7 @@ int Network::recv_data(std::vector<sf::IpAddress>& clients) {
     sf::IpAddress ip;
     while (window.isOpen() && status == PLAYING) {
         if (data->socket.receive(recv_packet, ip, data->port) !=
-            sf::Socket::Done) {
+            sf::Socket::Status::Done) {
             std::cerr << "Failed to receive packet" << std::endl;
             return MESSENGE_RECV_ERROR;
         }
