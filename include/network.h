@@ -4,6 +4,8 @@
 #include <SFML/Network.hpp>
 #include <optional>
 #include <vector>
+#include <mutex>
+#include <thread>
 
 #include "sfml.hpp"
 
@@ -50,7 +52,7 @@ public:
     int recv_data(std::vector<sf::IpAddress>& clients);
 
 protected:
-    sf::Mutex mtx;
+    std::mutex mtx;
     connect_data* data;
 
     int generate_mines(unsigned seed);
