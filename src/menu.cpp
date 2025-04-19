@@ -8,10 +8,11 @@
 #include "network.h"
 #include "sfml.hpp"
 
-Menu::Menu() {
-    window.create(sf::VideoMode(260, 320), "Minesweeper");
-    icon.loadFromFile("../image/icon/menu.png");
-    window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+Menu::Menu() 
+    : title(font), difficulty_text(font), menu_text(font), sprite(texture) {
+    window.create(sf::VideoMode({260, 320}), "Minesweeper");
+    const sf::Image icon("../image/icon/menu.png");
+    window.setIcon({icon.getSize().x, icon.getSize().y}, icon.getPixelsPtr());
     if (!font.openFromFile("../font/Cubic_11_1.100_R.ttf")) {
         std::cerr << "Failed to load font" << std::endl;
     }

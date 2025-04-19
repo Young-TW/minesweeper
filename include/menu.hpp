@@ -14,7 +14,6 @@ private:
                                                   {"Easy", "Medium", "Hard"}};
 
     sf::RenderWindow window;
-    sf::Image icon;
     sf::Font font;
     sf::Text title;
     sf::Text difficulty_text;
