@@ -55,7 +55,7 @@ int Menu::draw_button(int button_index, bool is_pressed) {
             std::to_string(difficulty[button_index][0]) + "x" +
             std::to_string(difficulty[button_index][1]) + " " +
             std::to_string(difficulty[button_index][2]) + " mines");
-        difficulty_text.setPosition(65 + move, 82 + move + button_index * 60);
+        difficulty_text.setPosition({65 + move, 82 + move + button_index * 60});
         window.draw(difficulty_text);
     } else {
         if (button_index == 3) {
@@ -63,7 +63,7 @@ int Menu::draw_button(int button_index, bool is_pressed) {
         } else {
             menu_text.setString(mode[mode_index][button_index]);
         }
-        menu_text.setPosition(65 + move, 82 + move + button_index * 60);
+        menu_text.setPosition({65 + move, 82 + move + button_index * 60});
         window.draw(menu_text);
     }
 
